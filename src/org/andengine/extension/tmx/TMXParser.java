@@ -191,7 +191,12 @@ public class TMXParser extends DefaultHandler implements TMXConstants {
 			if(binarySaved) {
 				final ArrayList<TMXLayer> tmxLayers = this.mTMXTiledMap.getTMXLayers();
 				try {
-					tmxLayers.get(tmxLayers.size() - 1).initializeTMXTilesFromDataString(this.mStringBuilder.toString().trim(), this.mDataEncoding, this.mDataCompression, this.mTMXTilePropertyListener);
+					TMXLayer layer = tmxLayers.get(tmxLayers.size() - 1);
+					layer.initializeTMXTilesFromDataString(this.mStringBuilder.toString().trim(), this.mDataEncoding, this.mDataCompression, this.mTMXTilePropertyListener);
+					if (layer.getTexture() == null) {
+						Debug.e("TMXLayer (" + layer.getName() + ") does not contain any tiles. Removing empty layer from TMXTiledMap.");
+						tmxLayers.remove(layer);
+					}
 				} catch (final IOException e) {
 					Debug.e(e);
 				}
