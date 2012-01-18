@@ -11,6 +11,7 @@ import javax.xml.parsers.SAXParserFactory;
 import org.andengine.extension.tmx.util.exception.TMXLoadException;
 import org.andengine.opengl.texture.TextureManager;
 import org.andengine.opengl.texture.TextureOptions;
+import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
@@ -36,28 +37,30 @@ public class TMXLoader {
 	private final Context mContext;
 	private final TextureManager mTextureManager;
 	private final TextureOptions mTextureOptions;
+	private final VertexBufferObjectManager mVertexBufferObjectManager;
 	private final ITMXTilePropertiesListener mTMXTilePropertyListener;
 
 	// ===========================================================
 	// Constructors
 	// ===========================================================
 
-	public TMXLoader(final Context pContext, final TextureManager pTextureManager) {
-		this(pContext, pTextureManager, TextureOptions.DEFAULT);
+	public TMXLoader(final Context pContext, final TextureManager pTextureManager, final VertexBufferObjectManager pVertexBufferObjectManager) {
+		this(pContext, pTextureManager, TextureOptions.DEFAULT, pVertexBufferObjectManager);
 	}
 
-	public TMXLoader(final Context pContext, final TextureManager pTextureManager, final TextureOptions pTextureOptions) {
-		this(pContext, pTextureManager, pTextureOptions, null);
+	public TMXLoader(final Context pContext, final TextureManager pTextureManager, final TextureOptions pTextureOptions, final VertexBufferObjectManager pVertexBufferObjectManager) {
+		this(pContext, pTextureManager, pTextureOptions, pVertexBufferObjectManager, null);
 	}
 
-	public TMXLoader(final Context pContext, final TextureManager pTextureManager, final ITMXTilePropertiesListener pTMXTilePropertyListener) {
-		this(pContext, pTextureManager, TextureOptions.DEFAULT, pTMXTilePropertyListener);
+	public TMXLoader(final Context pContext, final TextureManager pTextureManager, final VertexBufferObjectManager pVertexBufferObjectManager, final ITMXTilePropertiesListener pTMXTilePropertyListener) {
+		this(pContext, pTextureManager, TextureOptions.DEFAULT, pVertexBufferObjectManager, pTMXTilePropertyListener);
 	}
 
-	public TMXLoader(final Context pContext, final TextureManager pTextureManager, final TextureOptions pTextureOptions, final ITMXTilePropertiesListener pTMXTilePropertyListener) {
+	public TMXLoader(final Context pContext, final TextureManager pTextureManager, final TextureOptions pTextureOptions, final VertexBufferObjectManager pVertexBufferObjectManager, final ITMXTilePropertiesListener pTMXTilePropertyListener) {
 		this.mContext = pContext;
 		this.mTextureManager = pTextureManager;
 		this.mTextureOptions = pTextureOptions;
+		this.mVertexBufferObjectManager = pVertexBufferObjectManager;
 		this.mTMXTilePropertyListener = pTMXTilePropertyListener;
 	}
 
@@ -87,7 +90,7 @@ public class TMXLoader {
 			final SAXParser sp = spf.newSAXParser();
 
 			final XMLReader xr = sp.getXMLReader();
-			final TMXParser tmxParser = new TMXParser(this.mContext, this.mTextureManager, this.mTextureOptions, this.mTMXTilePropertyListener);
+			final TMXParser tmxParser = new TMXParser(this.mContext, this.mTextureManager, this.mTextureOptions, this.mVertexBufferObjectManager, this.mTMXTilePropertyListener);
 			xr.setContentHandler(tmxParser);
 
 			xr.parse(new InputSource(new BufferedInputStream(pInputStream)));

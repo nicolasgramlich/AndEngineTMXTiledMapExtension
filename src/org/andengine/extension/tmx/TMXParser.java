@@ -9,6 +9,7 @@ import org.andengine.extension.tmx.util.exception.TMXParseException;
 import org.andengine.extension.tmx.util.exception.TSXLoadException;
 import org.andengine.opengl.texture.TextureManager;
 import org.andengine.opengl.texture.TextureOptions;
+import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.SAXUtils;
 import org.andengine.util.debug.Debug;
 import org.xml.sax.Attributes;
@@ -35,8 +36,9 @@ public class TMXParser extends DefaultHandler implements TMXConstants {
 
 	private final Context mContext;
 	private final TextureManager mTextureManager;
-	private final ITMXTilePropertiesListener mTMXTilePropertyListener;
 	private final TextureOptions mTextureOptions;
+	private final VertexBufferObjectManager mVertexBufferObjectManager;
+	private final ITMXTilePropertiesListener mTMXTilePropertyListener;
 
 	private TMXTiledMap mTMXTiledMap;
 
@@ -64,10 +66,11 @@ public class TMXParser extends DefaultHandler implements TMXConstants {
 	// Constructors
 	// ===========================================================
 
-	public TMXParser(final Context pContext, final TextureManager pTextureManager, final TextureOptions pTextureOptions, final ITMXTilePropertiesListener pTMXTilePropertyListener) {
+	public TMXParser(final Context pContext, final TextureManager pTextureManager, final TextureOptions pTextureOptions, final VertexBufferObjectManager pVertexBufferObjectManager, final ITMXTilePropertiesListener pTMXTilePropertyListener) {
 		this.mContext = pContext;
 		this.mTextureManager = pTextureManager;
 		this.mTextureOptions = pTextureOptions;
+		this.mVertexBufferObjectManager = pVertexBufferObjectManager;
 		this.mTMXTilePropertyListener = pTMXTilePropertyListener;
 	}
 
@@ -148,7 +151,7 @@ public class TMXParser extends DefaultHandler implements TMXConstants {
 			}
 		} else if(pLocalName.equals(TMXConstants.TAG_LAYER)){
 			this.mInLayer = true;
-			this.mTMXTiledMap.addTMXLayer(new TMXLayer(this.mTMXTiledMap, pAttributes));
+			this.mTMXTiledMap.addTMXLayer(new TMXLayer(this.mTMXTiledMap, pAttributes, this.mVertexBufferObjectManager));
 		} else if(pLocalName.equals(TMXConstants.TAG_DATA)){
 			this.mInData = true;
 			this.mDataEncoding = pAttributes.getValue("", TMXConstants.TAG_DATA_ATTRIBUTE_ENCODING);
