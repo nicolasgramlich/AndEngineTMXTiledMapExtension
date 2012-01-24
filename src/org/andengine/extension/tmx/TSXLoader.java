@@ -15,7 +15,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 
-import android.content.Context;
+import android.content.res.AssetManager;
 
 /**
  * (c) 2010 Nicolas Gramlich
@@ -33,7 +33,7 @@ public class TSXLoader {
 	// Fields
 	// ===========================================================
 
-	private final Context mContext;
+	private final AssetManager mAssetManager;
 	private final TextureManager mTextureManager;
 	private final TextureOptions mTextureOptions;
 
@@ -41,8 +41,8 @@ public class TSXLoader {
 	// Constructors
 	// ===========================================================
 
-	public TSXLoader(final Context pContext, final TextureManager pTextureManager, final TextureOptions pTextureOptions) {
-		this.mContext = pContext;
+	public TSXLoader(final AssetManager pAssetManager, final TextureManager pTextureManager, final TextureOptions pTextureOptions) {
+		this.mAssetManager = pAssetManager;
 		this.mTextureManager = pTextureManager;
 		this.mTextureOptions = pTextureOptions;
 	}
@@ -59,9 +59,9 @@ public class TSXLoader {
 	// Methods
 	// ===========================================================
 
-	public TMXTileSet loadFromAsset(final Context pContext, final int pFirstGlobalTileID, final String pAssetPath) throws TSXLoadException {
+	public TMXTileSet loadFromAsset(final int pFirstGlobalTileID, final String pAssetPath) throws TSXLoadException {
 		try {
-			return this.load(pFirstGlobalTileID, pContext.getAssets().open(pAssetPath));
+			return this.load(pFirstGlobalTileID, this.mAssetManager.open(pAssetPath));
 		} catch (final IOException e) {
 			throw new TSXLoadException("Could not load TMXTileSet from asset: " + pAssetPath, e);
 		}
@@ -73,7 +73,7 @@ public class TSXLoader {
 			final SAXParser sp = spf.newSAXParser();
 
 			final XMLReader xr = sp.getXMLReader();
-			final TSXParser tsxParser = new TSXParser(this.mContext, this.mTextureManager, this.mTextureOptions, pFirstGlobalTileID);
+			final TSXParser tsxParser = new TSXParser(this.mAssetManager, this.mTextureManager, this.mTextureOptions, pFirstGlobalTileID);
 			xr.setContentHandler(tsxParser);
 
 			xr.parse(new InputSource(new BufferedInputStream(pInputStream)));

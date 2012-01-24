@@ -16,7 +16,7 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import android.content.Context;
+import android.content.res.AssetManager;
 
 /**
  * (c) 2010 Nicolas Gramlich
@@ -34,7 +34,7 @@ public class TMXParser extends DefaultHandler implements TMXConstants {
 	// Fields
 	// ===========================================================
 
-	private final Context mContext;
+	private final AssetManager mAssetManager;
 	private final TextureManager mTextureManager;
 	private final TextureOptions mTextureOptions;
 	private final VertexBufferObjectManager mVertexBufferObjectManager;
@@ -66,8 +66,8 @@ public class TMXParser extends DefaultHandler implements TMXConstants {
 	// Constructors
 	// ===========================================================
 
-	public TMXParser(final Context pContext, final TextureManager pTextureManager, final TextureOptions pTextureOptions, final VertexBufferObjectManager pVertexBufferObjectManager, final ITMXTilePropertiesListener pTMXTilePropertyListener) {
-		this.mContext = pContext;
+	public TMXParser(final AssetManager pAssetManager, final TextureManager pTextureManager, final TextureOptions pTextureOptions, final VertexBufferObjectManager pVertexBufferObjectManager, final ITMXTilePropertiesListener pTMXTilePropertyListener) {
+		this.mAssetManager = pAssetManager;
 		this.mTextureManager = pTextureManager;
 		this.mTextureOptions = pTextureOptions;
 		this.mVertexBufferObjectManager = pVertexBufferObjectManager;
@@ -100,8 +100,8 @@ public class TMXParser extends DefaultHandler implements TMXConstants {
 			} else {
 				try {
 					final int firstGlobalTileID = SAXUtils.getIntAttribute(pAttributes, TMXConstants.TAG_TILESET_ATTRIBUTE_FIRSTGID, 1);
-					final TSXLoader tsxLoader = new TSXLoader(this.mContext, this.mTextureManager, this.mTextureOptions);
-					tmxTileSet = tsxLoader.loadFromAsset(this.mContext, firstGlobalTileID, tsxTileSetSource);
+					final TSXLoader tsxLoader = new TSXLoader(this.mAssetManager, this.mTextureManager, this.mTextureOptions);
+					tmxTileSet = tsxLoader.loadFromAsset(firstGlobalTileID, tsxTileSetSource);
 				} catch (final TSXLoadException e) {
 					throw new TMXParseException("Failed to load TMXTileSet from source: " + tsxTileSetSource, e);
 				}
@@ -110,7 +110,7 @@ public class TMXParser extends DefaultHandler implements TMXConstants {
 		} else if(pLocalName.equals(TMXConstants.TAG_IMAGE)){
 			this.mInImage = true;
 			final ArrayList<TMXTileSet> tmxTileSets = this.mTMXTiledMap.getTMXTileSets();
-			tmxTileSets.get(tmxTileSets.size() - 1).setImageSource(this.mContext, this.mTextureManager, pAttributes);
+			tmxTileSets.get(tmxTileSets.size() - 1).setImageSource(this.mAssetManager, this.mTextureManager, pAttributes);
 		} else if(pLocalName.equals(TMXConstants.TAG_TILE)) {
 			this.mInTile = true;
 			if(this.mInTileset) {
