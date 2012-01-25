@@ -1,5 +1,8 @@
 package org.andengine.extension.tmx;
 
+import java.io.IOException;
+import java.io.InputStream;
+
 import org.andengine.extension.tmx.util.constants.TMXConstants;
 import org.andengine.extension.tmx.util.exception.TMXParseException;
 import org.andengine.opengl.texture.ITexture;
@@ -11,6 +14,7 @@ import org.andengine.opengl.texture.atlas.bitmap.source.AssetBitmapTextureAtlasS
 import org.andengine.opengl.texture.atlas.bitmap.source.decorator.ColorKeyBitmapTextureAtlasSourceDecorator;
 import org.andengine.opengl.texture.atlas.bitmap.source.decorator.shape.RectangleBitmapTextureAtlasSourceDecoratorShape;
 import org.andengine.opengl.texture.bitmap.BitmapTexture.BitmapTextureFormat;
+import org.andengine.opengl.texture.compressed.etc1.ETC1Texture;
 import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.opengl.texture.region.TextureRegion;
 import org.andengine.util.SAXUtils;
@@ -107,24 +111,48 @@ public class TMXTileSet implements TMXConstants {
 	public void setImageSource(final AssetManager pAssetManager, final TextureManager pTextureManager, final Attributes pAttributes) throws TMXParseException {
 		this.mImageSource = pAttributes.getValue("", TMXConstants.TAG_IMAGE_ATTRIBUTE_SOURCE);
 
-		final AssetBitmapTextureAtlasSource assetBitmapTextureAtlasSource = AssetBitmapTextureAtlasSource.create(pAssetManager, this.mImageSource);
-		this.mTilesHorizontal = TMXTileSet.determineCount(assetBitmapTextureAtlasSource.getTextureWidth(), this.mTileWidth, this.mMargin, this.mSpacing);
-		this.mTilesVertical = TMXTileSet.determineCount(assetBitmapTextureAtlasSource.getTextureHeight(), this.mTileHeight, this.mMargin, this.mSpacing);
-		final BitmapTextureAtlas bitmapTextureAtlas = new BitmapTextureAtlas(assetBitmapTextureAtlasSource.getTextureWidth(), assetBitmapTextureAtlasSource.getTextureHeight(), BitmapTextureFormat.RGBA_8888, this.mTextureOptions); // TODO Make TextureFormat variable
+		// Determine we are using bitmap or pkm texture
+		String extension = this.mImageSource.substring(	this.mImageSource.lastIndexOf('.') + 1, this.mImageSource.length());
+		boolean useETC1 = extension.equals("pkm");
 
-		final String transparentColor = SAXUtils.getAttribute(pAttributes, TMXConstants.TAG_IMAGE_ATTRIBUTE_TRANS, null);
-		if(transparentColor == null) {
-			BitmapTextureAtlasTextureRegionFactory.createFromSource(bitmapTextureAtlas, assetBitmapTextureAtlasSource, 0, 0);
-		} else {
-			try{
-				final int color = Color.parseColor((transparentColor.charAt(0) == '#') ? transparentColor : "#" + transparentColor);
-				BitmapTextureAtlasTextureRegionFactory.createFromSource(bitmapTextureAtlas, new ColorKeyBitmapTextureAtlasSourceDecorator(assetBitmapTextureAtlasSource, RectangleBitmapTextureAtlasSourceDecoratorShape.getDefaultInstance(), color), 0, 0);
-			} catch (final IllegalArgumentException e) {
-				throw new TMXParseException("Illegal value: '" + transparentColor + "' for attribute 'trans' supplied!", e);
+		if (useETC1) {
+			try {
+				this.mTexture = new ETC1Texture(TextureOptions.BILINEAR) {
+					@Override
+					protected InputStream getInputStream() throws IOException {
+						return pAssetManager.open(mImageSource);
+					}
+				}.load(pTextureManager);
+			} catch (IOException e) {
+				e.printStackTrace();
+				throw new RuntimeException("ETC1 asset loading failed!");
 			}
+
+			final String transparentColor = SAXUtils.getAttribute(pAttributes, TMXConstants.TAG_IMAGE_ATTRIBUTE_TRANS, null);
+			if (transparentColor != null) {
+				throw new RuntimeException(	"Transparency will not work with ETC1 compressed textures!");
+			}
+		} else {
+			final AssetBitmapTextureAtlasSource assetBitmapTextureAtlasSource = AssetBitmapTextureAtlasSource.create(pAssetManager, this.mImageSource);
+			final BitmapTextureAtlas bitmapTextureAtlas = new BitmapTextureAtlas(assetBitmapTextureAtlasSource.getTextureWidth(), assetBitmapTextureAtlasSource.getTextureHeight(), BitmapTextureFormat.RGBA_8888, this.mTextureOptions); // TODO Make TextureFormat variable
+
+			final String transparentColor = SAXUtils.getAttribute(pAttributes, TMXConstants.TAG_IMAGE_ATTRIBUTE_TRANS, null);
+			if(transparentColor == null) {
+				BitmapTextureAtlasTextureRegionFactory.createFromSource(bitmapTextureAtlas, assetBitmapTextureAtlasSource, 0, 0);
+			} else {
+				try{
+					final int color = Color.parseColor((transparentColor.charAt(0) == '#') ? transparentColor : "#" + transparentColor);
+					BitmapTextureAtlasTextureRegionFactory.createFromSource(bitmapTextureAtlas, new ColorKeyBitmapTextureAtlasSourceDecorator(assetBitmapTextureAtlasSource, RectangleBitmapTextureAtlasSourceDecoratorShape.getDefaultInstance(), color), 0, 0);
+				} catch (final IllegalArgumentException e) {
+					throw new TMXParseException("Illegal value: '" + transparentColor + "' for attribute 'trans' supplied!", e);
+				}
+			}
+			this.mTexture = bitmapTextureAtlas;
+			this.mTexture.load(pTextureManager);
 		}
-		this.mTexture = bitmapTextureAtlas;
-		this.mTexture.load(pTextureManager);
+
+		this.mTilesHorizontal = TMXTileSet.determineCount(mTexture.getWidth(), this.mTileWidth, this.mMargin, this.mSpacing);
+		this.mTilesVertical = TMXTileSet.determineCount(mTexture.getHeight(), this.mTileHeight, this.mMargin, this.mSpacing);
 	}
 
 	public String getImageSource() {
