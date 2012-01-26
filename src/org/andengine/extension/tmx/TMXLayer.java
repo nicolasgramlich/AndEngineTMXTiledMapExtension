@@ -185,19 +185,21 @@ public class TMXLayer extends SpriteBatch implements TMXConstants {
 		final float layerMinX = cullingVertices[SpriteBatch.VERTEX_INDEX_X];
 		final float layerMinY = cullingVertices[SpriteBatch.VERTEX_INDEX_Y];
 
-		final float cameraMinX = pCamera.getXMin();
-		final float cameraMinY = pCamera.getYMin();
 		final float cameraWidth = pCamera.getWidth();
 		final float cameraHeight = pCamera.getHeight();
+		final float maxCamDimension = Math.max(cameraWidth, cameraHeight);
+		final float minTileSize = Math.min(scaledTileWidth, scaledTileHeight);
+		final float cameraMinX = pCamera.getCenterX() - maxCamDimension/2;
+		final float cameraMinY = pCamera.getCenterY() - maxCamDimension/2;
 
 		/* Determine the area that is visible in the camera. */
 		final float firstColumnRaw = (cameraMinX - layerMinX) / scaledTileWidth;
-		final int firstColumn = MathUtils.bringToBounds(0, tileColumns - 1, (int)Math.floor(firstColumnRaw));
-		final int lastColumn = MathUtils.bringToBounds(0, tileColumns - 1, (int)Math.ceil(firstColumnRaw + cameraWidth / scaledTileWidth));
+		final int firstColumn = MathUtils.bringToBounds(0, tileColumns - 1, (int)Math.floor(firstColumnRaw) - 1);
+		final int lastColumn = MathUtils.bringToBounds(0, tileColumns - 1, (int)Math.ceil(firstColumnRaw + maxCamDimension / minTileSize) + 1);
 
 		final float firstRowRaw = (cameraMinY - layerMinY) / scaledTileHeight;
-		final int firstRow = MathUtils.bringToBounds(0, tileRows - 1, (int)Math.floor(firstRowRaw));
-		final int lastRow = MathUtils.bringToBounds(0, tileRows - 1, (int)Math.floor(firstRowRaw + cameraHeight / scaledTileHeight));
+		final int firstRow = MathUtils.bringToBounds(0, tileRows - 1, (int)Math.floor(firstRowRaw) - 1 );
+		final int lastRow = MathUtils.bringToBounds(0, tileRows - 1, (int)Math.ceil(firstRowRaw + maxCamDimension / minTileSize) + 1);
 
 		for(int row = firstRow; row <= lastRow; row++) {
 			for(int column = firstColumn; column <= lastColumn; column++) {
