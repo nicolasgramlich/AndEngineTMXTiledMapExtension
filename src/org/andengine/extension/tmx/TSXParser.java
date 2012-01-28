@@ -9,7 +9,7 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import android.content.Context;
+import android.content.res.AssetManager;
 
 /**
  * (c) 2010 Nicolas Gramlich
@@ -27,7 +27,7 @@ public class TSXParser extends DefaultHandler implements TMXConstants {
 	// Fields
 	// ===========================================================
 
-	private final Context mContext;
+	private final AssetManager mAssetManager;
 	private final TextureManager mTextureManager;
 	private final TextureOptions mTextureOptions;
 
@@ -51,8 +51,8 @@ public class TSXParser extends DefaultHandler implements TMXConstants {
 	// Constructors
 	// ===========================================================
 
-	public TSXParser(final Context pContext, final TextureManager pTextureManager, final TextureOptions pTextureOptions, final int pFirstGlobalTileID) {
-		this.mContext = pContext;
+	public TSXParser(final AssetManager pAssetManager, final TextureManager pTextureManager, final TextureOptions pTextureOptions, final int pFirstGlobalTileID) {
+		this.mAssetManager = pAssetManager;
 		this.mTextureManager = pTextureManager;
 		this.mTextureOptions = pTextureOptions;
 		this.mFirstGlobalTileID = pFirstGlobalTileID;
@@ -77,7 +77,7 @@ public class TSXParser extends DefaultHandler implements TMXConstants {
 			this.mTMXTileSet = new TMXTileSet(this.mFirstGlobalTileID, pAttributes, this.mTextureOptions);
 		} else if(pLocalName.equals(TMXConstants.TAG_IMAGE)){
 			this.mInImage = true;
-			this.mTMXTileSet.setImageSource(this.mContext, this.mTextureManager, pAttributes);
+			this.mTMXTileSet.setImageSource(this.mAssetManager, this.mTextureManager, pAttributes);
 		} else if(pLocalName.equals(TMXConstants.TAG_TILE)) {
 			this.mInTile = true;
 			this.mLastTileSetTileID = SAXUtils.getIntAttributeOrThrow(pAttributes, TMXConstants.TAG_TILE_ATTRIBUTE_ID);
