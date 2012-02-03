@@ -254,6 +254,7 @@ public class TMXLayer extends SpriteBatch implements TMXConstants {
 
 		final ITextureRegion tmxTileTextureRegion;
 		if(pGlobalTileID == 0) {
+			// it's a transparent tile
 			tmxTileTextureRegion = null;
 		} else {
 			tmxTileTextureRegion = tmxTiledMap.getTextureRegionFromGlobalTileID(pGlobalTileID);
@@ -261,22 +262,26 @@ public class TMXLayer extends SpriteBatch implements TMXConstants {
 		final int tileHeight = this.mTMXTiledMap.getTileHeight();
 		final int tileWidth = this.mTMXTiledMap.getTileWidth();
 
-		if(this.mTexture == null) {
-			this.mTexture = tmxTileTextureRegion.getTexture();
-			super.initBlendFunction(this.mTexture);
-		} else {
-			if(this.mTexture != tmxTileTextureRegion.getTexture()) {
-				throw new AndEngineException("All TMXTiles in a TMXLayer need to be in the same TMXTileSet.");
+		if (tmxTileTextureRegion != null) {
+			// Unless this is a transparent tile, setup the texture
+			if (this.mTexture == null) {
+				this.mTexture = tmxTileTextureRegion.getTexture();
+				super.initBlendFunction(this.mTexture);
+			} else {
+				if (this.mTexture != tmxTileTextureRegion.getTexture()) {
+					throw new AndEngineException("All TMXTiles in a TMXLayer ("
+							+ mName + ") need to be in the same TMXTileSet.");
+				}
 			}
 		}
 		final TMXTile tmxTile = new TMXTile(pGlobalTileID, column, row, tileWidth, tileHeight, tmxTileTextureRegion);
 		tmxTiles[row][column] = tmxTile;
 
-		this.setIndex(this.getSpriteBatchIndex(column, row));
-		this.drawWithoutChecks(tmxTileTextureRegion, tmxTile.getTileX(), tmxTile.getTileY(), tileWidth, tileHeight, Color.WHITE_PACKED);
-		this.submit(); // TODO Doesn't need to be called here, but should rather be called in a "init" step, when parsing the XML is complete.
+		if (pGlobalTileID != 0) {
+			this.setIndex(this.getSpriteBatchIndex(column, row));
+			this.drawWithoutChecks(tmxTileTextureRegion, tmxTile.getTileX(), tmxTile.getTileY(), tileWidth, tileHeight, Color.WHITE_PACKED);
+			this.submit(); // TODO Doesn't need to be called here, but should rather be called in a "init" step, when parsing the XML is complete.
 
-		if(pGlobalTileID != 0) {
 			/* Notify the ITMXTilePropertiesListener if it exists. */
 			if(pTMXTilePropertyListener != null) {
 				final TMXProperties<TMXTileProperty> tmxTileProperties = tmxTiledMap.getTMXTileProperties(pGlobalTileID);
