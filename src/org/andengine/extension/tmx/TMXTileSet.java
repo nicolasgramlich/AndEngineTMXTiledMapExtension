@@ -122,7 +122,8 @@ public class TMXTileSet implements TMXConstants {
 					protected InputStream getInputStream() throws IOException {
 						return pAssetManager.open(mImageSource);
 					}
-				}.load(pTextureManager);
+				};
+				mTexture.load(pTextureManager);
 			} catch (IOException e) {
 				e.printStackTrace();
 				throw new RuntimeException("ETC1 asset loading failed!");
