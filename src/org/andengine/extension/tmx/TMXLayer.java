@@ -21,7 +21,7 @@ import org.andengine.util.algorithm.collision.RectangularShapeCollisionChecker;
 import org.andengine.util.base64.Base64;
 import org.andengine.util.base64.Base64InputStream;
 import org.andengine.util.color.Color;
-import org.andengine.util.exception.AndEngineException;
+import org.andengine.util.exception.AndEngineRuntimeException;
 import org.andengine.util.exception.MethodNotSupportedException;
 import org.andengine.util.math.MathUtils;
 import org.xml.sax.Attributes;
@@ -266,7 +266,7 @@ public class TMXLayer extends SpriteBatch implements TMXConstants {
 			super.initBlendFunction(this.mTexture);
 		} else {
 			if(this.mTexture != tmxTileTextureRegion.getTexture()) {
-				throw new AndEngineException("All TMXTiles in a TMXLayer need to be in the same TMXTileSet.");
+				throw new AndEngineRuntimeException("All TMXTiles in a TMXLayer need to be in the same TMXTileSet.");
 			}
 		}
 		final TMXTile tmxTile = new TMXTile(pGlobalTileID, column, row, tileWidth, tileHeight, tmxTileTextureRegion);
