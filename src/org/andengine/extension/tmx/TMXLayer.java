@@ -186,19 +186,21 @@ public class TMXLayer extends SpriteBatch implements TMXConstants {
 		final float layerMinX = cullingVertices[SpriteBatch.VERTEX_INDEX_X];
 		final float layerMinY = cullingVertices[SpriteBatch.VERTEX_INDEX_Y];
 
-		final float cameraMinX = pCamera.getXMin();
-		final float cameraMinY = pCamera.getYMin();
 		final float cameraWidth = pCamera.getWidth();
 		final float cameraHeight = pCamera.getHeight();
+		final float maxCamDimension = Math.max(cameraWidth, cameraHeight);
+		final float minTileSize = Math.min(scaledTileWidth, scaledTileHeight);
+		final float cameraMinX = pCamera.getCenterX() - maxCamDimension/2;
+		final float cameraMinY = pCamera.getCenterY() - maxCamDimension/2;
 
 		/* Determine the area that is visible in the camera. */
 		final float firstColumnRaw = (cameraMinX - layerMinX) / scaledTileWidth;
-		final int firstColumn = MathUtils.bringToBounds(0, tileColumns - 1, (int)Math.floor(firstColumnRaw));
-		final int lastColumn = MathUtils.bringToBounds(0, tileColumns - 1, (int)Math.ceil(firstColumnRaw + cameraWidth / scaledTileWidth));
+		final int firstColumn = MathUtils.bringToBounds(0, tileColumns - 1, (int)Math.floor(firstColumnRaw) - 1);
+		final int lastColumn = MathUtils.bringToBounds(0, tileColumns - 1, (int)Math.ceil(firstColumnRaw + maxCamDimension / minTileSize) + 1);
 
 		final float firstRowRaw = (cameraMinY - layerMinY) / scaledTileHeight;
-		final int firstRow = MathUtils.bringToBounds(0, tileRows - 1, (int)Math.floor(firstRowRaw));
-		final int lastRow = MathUtils.bringToBounds(0, tileRows - 1, (int)Math.floor(firstRowRaw + cameraHeight / scaledTileHeight));
+		final int firstRow = MathUtils.bringToBounds(0, tileRows - 1, (int)Math.floor(firstRowRaw) - 1 );
+		final int lastRow = MathUtils.bringToBounds(0, tileRows - 1, (int)Math.ceil(firstRowRaw + maxCamDimension / minTileSize) + 1);
 
 		for(int row = firstRow; row <= lastRow; row++) {
 			for(int column = firstColumn; column <= lastColumn; column++) {
@@ -254,6 +256,7 @@ public class TMXLayer extends SpriteBatch implements TMXConstants {
 
 		final ITextureRegion tmxTileTextureRegion;
 		if(pGlobalTileID == 0) {
+			// it's a transparent tile
 			tmxTileTextureRegion = null;
 		} else {
 			tmxTileTextureRegion = tmxTiledMap.getTextureRegionFromGlobalTileID(pGlobalTileID);
@@ -261,22 +264,26 @@ public class TMXLayer extends SpriteBatch implements TMXConstants {
 		final int tileHeight = this.mTMXTiledMap.getTileHeight();
 		final int tileWidth = this.mTMXTiledMap.getTileWidth();
 
-		if(this.mTexture == null) {
-			this.mTexture = tmxTileTextureRegion.getTexture();
-			super.initBlendFunction(this.mTexture);
-		} else {
-			if(this.mTexture != tmxTileTextureRegion.getTexture()) {
-				throw new AndEngineException("All TMXTiles in a TMXLayer need to be in the same TMXTileSet.");
+		if (tmxTileTextureRegion != null) {
+			// Unless this is a transparent tile, setup the texture
+			if (this.mTexture == null) {
+				this.mTexture = tmxTileTextureRegion.getTexture();
+				super.initBlendFunction(this.mTexture);
+			} else {
+				if (this.mTexture != tmxTileTextureRegion.getTexture()) {
+					throw new AndEngineException("All TMXTiles in a TMXLayer ("
+							+ mName + ") need to be in the same TMXTileSet.");
+				}
 			}
 		}
 		final TMXTile tmxTile = new TMXTile(pGlobalTileID, column, row, tileWidth, tileHeight, tmxTileTextureRegion);
 		tmxTiles[row][column] = tmxTile;
 
-		this.setIndex(this.getSpriteBatchIndex(column, row));
-		this.drawWithoutChecks(tmxTileTextureRegion, tmxTile.getTileX(), tmxTile.getTileY(), tileWidth, tileHeight, Color.WHITE_PACKED);
-		this.submit(); // TODO Doesn't need to be called here, but should rather be called in a "init" step, when parsing the XML is complete.
+		if (pGlobalTileID != 0) {
+			this.setIndex(this.getSpriteBatchIndex(column, row));
+			this.drawWithoutChecks(tmxTileTextureRegion, tmxTile.getTileX(), tmxTile.getTileY(), tileWidth, tileHeight, Color.WHITE_PACKED);
+			this.submit(); // TODO Doesn't need to be called here, but should rather be called in a "init" step, when parsing the XML is complete.
 
-		if(pGlobalTileID != 0) {
 			/* Notify the ITMXTilePropertiesListener if it exists. */
 			if(pTMXTilePropertyListener != null) {
 				final TMXProperties<TMXTileProperty> tmxTileProperties = tmxTiledMap.getTMXTileProperties(pGlobalTileID);

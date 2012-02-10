@@ -62,6 +62,14 @@ public class TMXTile {
 		return this.mTileRow * this.mTileHeight;
 	}
 
+	public int getTileCenterX() {
+		return this.getTileX() + this.getTileWidth()/2;
+	}
+
+	public int getTileCenterY() {
+		return this.getTileY() + this.getTileHeight()/2;
+	}
+
 	public int getTileWidth() {
 		return this.mTileWidth;
 	}
