@@ -273,7 +273,7 @@ public class TMXLayer extends SpriteBatch implements TMXConstants {
 		tmxTiles[row][column] = tmxTile;
 
 		this.setIndex(this.getSpriteBatchIndex(column, row));
-		this.drawWithoutChecks(tmxTileTextureRegion, tmxTile.getTileX(), tmxTile.getTileY(), tileWidth, tileHeight, Color.WHITE_PACKED);
+		this.drawWithoutChecks(tmxTileTextureRegion, tmxTile.getTileX(), tmxTile.getTileY(), tileWidth, tileHeight, Color.WHITE_ABGR_PACKED_FLOAT);
 		this.submit(); // TODO Doesn't need to be called here, but should rather be called in a "init" step, when parsing the XML is complete.
 
 		if(pGlobalTileID != 0) {
