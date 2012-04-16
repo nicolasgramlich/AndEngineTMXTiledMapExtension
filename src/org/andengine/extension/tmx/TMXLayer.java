@@ -17,7 +17,7 @@ import org.andengine.opengl.util.GLState;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.SAXUtils;
 import org.andengine.util.StreamUtils;
-import org.andengine.util.algorithm.collision.RectangularShapeCollisionChecker;
+import org.andengine.util.algorithm.collision.EntityCollisionChecker;
 import org.andengine.util.base64.Base64;
 import org.andengine.util.base64.Base64InputStream;
 import org.andengine.util.color.Color;
@@ -97,11 +97,11 @@ public class TMXLayer extends SpriteBatch implements TMXConstants {
 		return this.mName;
 	}
 
-	public int getWidth() {
+	public float getWidth() {
 		return this.mWidth;
 	}
 
-	public int getHeight() {
+	public float getHeight() {
 		return this.mHeight;
 	}
 
@@ -181,7 +181,7 @@ public class TMXLayer extends SpriteBatch implements TMXConstants {
 		final float scaledTileHeight = tileHeight * this.mScaleY;
 
 		final float[] cullingVertices = this.mCullingVertices;
-		RectangularShapeCollisionChecker.fillVertices(0, 0, this.mWidth, this.mHeight, this.getLocalToSceneTransformation(), cullingVertices);
+		EntityCollisionChecker.fillVertices(0, 0, this.mWidth, this.mHeight, this.getLocalToSceneTransformation(), cullingVertices);
 
 		final float layerMinX = cullingVertices[SpriteBatch.VERTEX_INDEX_X];
 		final float layerMinY = cullingVertices[SpriteBatch.VERTEX_INDEX_Y];
