@@ -127,7 +127,7 @@ public class TMXLayer extends SpriteBatch implements TMXConstants {
 	 * @return the {@link TMXTile} located at <code>pX/pY</code>.
 	 */
 	public TMXTile getTMXTileAt(final float pX, final float pY) {
-		final float[] localCoords = this.convertSceneToLocalCoordinates(pX, pY);
+		final float[] localCoords = this.convertSceneCoordinatesToLocalCoordinates(pX, pY);
 		final TMXTiledMap tmxTiledMap = this.mTMXTiledMap;
 
 		final int tileColumn = (int)(localCoords[SpriteBatch.VERTEX_INDEX_X] / tmxTiledMap.getTileWidth());
