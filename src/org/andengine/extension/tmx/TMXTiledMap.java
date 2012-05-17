@@ -2,6 +2,7 @@ package org.andengine.extension.tmx;
 
 import java.util.ArrayList;
 
+import org.andengine.entity.Entity;
 import org.andengine.extension.tmx.util.constants.TMXConstants;
 import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.util.SAXUtils;
@@ -16,7 +17,7 @@ import android.util.SparseArray;
  * @author Nicolas Gramlich
  * @since 19:38:11 - 20.07.2010
  */
-public class TMXTiledMap implements TMXConstants {
+public class TMXTiledMap extends Entity implements TMXConstants {
 	// ===========================================================
 	// Constants
 	// ===========================================================
@@ -44,7 +45,7 @@ public class TMXTiledMap implements TMXConstants {
 	// Constructors
 	// ===========================================================
 
-	TMXTiledMap(final Attributes pAttributes) {
+	/* package */ TMXTiledMap(final Attributes pAttributes) {
 		this.mOrientation = pAttributes.getValue("", TMXConstants.TAG_MAP_ATTRIBUTE_ORIENTATION);
 		if(!this.mOrientation.equals(TMXConstants.TAG_MAP_ATTRIBUTE_ORIENTATION_VALUE_ORTHOGONAL)) {
 			throw new IllegalArgumentException(TMXConstants.TAG_MAP_ATTRIBUTE_ORIENTATION + ": '" + this.mOrientation + "' is not supported.");
@@ -53,35 +54,28 @@ public class TMXTiledMap implements TMXConstants {
 		this.mTilesRows = SAXUtils.getIntAttributeOrThrow(pAttributes, TMXConstants.TAG_MAP_ATTRIBUTE_HEIGHT);
 		this.mTileWidth = SAXUtils.getIntAttributeOrThrow(pAttributes, TMXConstants.TAG_MAP_ATTRIBUTE_TILEWIDTH);
 		this.mTileHeight = SAXUtils.getIntAttributeOrThrow(pAttributes, TMXConstants.TAG_MAP_ATTRIBUTE_TILEHEIGHT);
+
+		this.setSize(this.mTileColumns * this.mTileWidth, this.mTilesRows * this.mTileHeight);
 	}
 
 	// ===========================================================
 	// Getter & Setter
 	// ===========================================================
 
-	public final String getOrientation() {
+	public String getOrientation() {
 		return this.mOrientation;
 	}
-	/**
-	 * @deprecated Instead use {@link TMXTiledMap#getTileColumns()} * {@link TMXTiledMap#getTileWidth()}.
-	 * @return
-	 */
-	@Deprecated
-	public final int getWidth() {
-		return this.mTileColumns;
+
+	public float getWidth() {
+		return this.mTileColumns * this.mTileWidth;
+	}
+
+	public float getHeight() {
+		return this.mTilesRows * this.mTileHeight;
 	}
 
 	public final int getTileColumns() {
 		return this.mTileColumns;
-	}
-
-	/**
-	 * @deprecated Instead use {@link TMXTiledMap#getTileRows()} * {@link TMXTiledMap#getTileHeight()}.
-	 * @return
-	 */
-	@Deprecated
-	public final int getHeight() {
-		return this.mTilesRows;
 	}
 
 	public final int getTileRows() {
@@ -96,7 +90,7 @@ public class TMXTiledMap implements TMXConstants {
 		return this.mTileHeight;
 	}
 
-	void addTMXTileSet(final TMXTileSet pTMXTileSet) {
+	/* package */ void addTMXTileSet(final TMXTileSet pTMXTileSet) {
 		this.mTMXTileSets.add(pTMXTileSet);
 	}
 
@@ -104,15 +98,16 @@ public class TMXTiledMap implements TMXConstants {
 		return this.mTMXTileSets;
 	}
 
-	void addTMXLayer(final TMXLayer pTMXLayer) {
+	/* package */ void addTMXLayer(final TMXLayer pTMXLayer) {
 		this.mTMXLayers.add(pTMXLayer);
+		this.attachChild(pTMXLayer);
 	}
 
 	public ArrayList<TMXLayer> getTMXLayers() {
 		return this.mTMXLayers;
 	}
 
-	void addTMXObjectGroup(final TMXObjectGroup pTMXObjectGroup) {
+	/* package */ void addTMXObjectGroup(final TMXObjectGroup pTMXObjectGroup) {
 		this.mTMXObjectGroups.add(pTMXObjectGroup);
 	}
 

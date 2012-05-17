@@ -18,7 +18,7 @@ public class TMXTile {
 	// Fields
 	// ===========================================================
 
-	int mGlobalTileID;
+	/* package */ int mGlobalTileID;
 	private final int mTileRow;
 	private final int mTileColumn;
 	private final int mTileWidth;
@@ -52,14 +52,6 @@ public class TMXTile {
 
 	public int getTileColumn() {
 		return this.mTileColumn;
-	}
-
-	public int getTileX() {
-		return this.mTileColumn * this.mTileWidth;
-	}
-
-	public int getTileY() {
-		return this.mTileRow * this.mTileHeight;
 	}
 
 	public int getTileWidth() {
