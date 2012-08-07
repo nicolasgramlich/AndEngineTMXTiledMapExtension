@@ -257,26 +257,28 @@ public class TMXLayer extends SpriteBatch implements TMXConstants {
 			tmxTileTextureRegion = null;
 		} else {
 			tmxTileTextureRegion = tmxTiledMap.getTextureRegionFromGlobalTileID(pGlobalTileID);
+
+			if(this.mTexture == null) {
+				this.mTexture = tmxTileTextureRegion.getTexture();
+				super.initBlendFunction(this.mTexture);
+			} else {
+				if(this.mTexture != tmxTileTextureRegion.getTexture()) {
+					throw new AndEngineRuntimeException("All TMXTiles in a TMXLayer need to be in the same TMXTileSet.");
+				}
+			}
 		}
+
 		final int tileHeight = this.mTMXTiledMap.getTileHeight();
 		final int tileWidth = this.mTMXTiledMap.getTileWidth();
 
-		if(this.mTexture == null) {
-			this.mTexture = tmxTileTextureRegion.getTexture();
-			super.initBlendFunction(this.mTexture);
-		} else {
-			if(this.mTexture != tmxTileTextureRegion.getTexture()) {
-				throw new AndEngineRuntimeException("All TMXTiles in a TMXLayer need to be in the same TMXTileSet.");
-			}
-		}
 		final TMXTile tmxTile = new TMXTile(pGlobalTileID, column, row, tileWidth, tileHeight, tmxTileTextureRegion);
 		tmxTiles[row][column] = tmxTile;
 
-		this.setIndex(this.getSpriteBatchIndex(column, row));
-		this.drawWithoutChecks(tmxTileTextureRegion, tmxTile.getTileX(), tmxTile.getTileY(), tileWidth, tileHeight, Color.WHITE_ABGR_PACKED_FLOAT);
-		this.submit(); // TODO Doesn't need to be called here, but should rather be called in a "init" step, when parsing the XML is complete.
-
 		if(pGlobalTileID != 0) {
+			this.setIndex(this.getSpriteBatchIndex(column, row));
+			this.drawWithoutChecks(tmxTileTextureRegion, tmxTile.getTileX(), tmxTile.getTileY(), tileWidth, tileHeight, Color.WHITE_ABGR_PACKED_FLOAT);
+			this.submit(); // TODO Doesn't need to be called here, but should rather be called in a "init" step, when parsing the XML is complete.
+
 			/* Notify the ITMXTilePropertiesListener if it exists. */
 			if(pTMXTilePropertyListener != null) {
 				final TMXProperties<TMXTileProperty> tmxTileProperties = tmxTiledMap.getTMXTileProperties(pGlobalTileID);
