@@ -4,6 +4,8 @@ import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+
+import java.util.zip.InflaterInputStream;
 import java.util.zip.GZIPInputStream;
 
 import org.andengine.engine.camera.Camera;
@@ -221,12 +223,19 @@ public class TMXLayer extends SpriteBatch implements TMXConstants {
 			InputStream in = new ByteArrayInputStream(pDataString.getBytes("UTF-8"));
 
 			/* Wrap decoding Streams if necessary. */
-			if(pDataEncoding != null && pDataEncoding.equals(TMXConstants.TAG_DATA_ATTRIBUTE_ENCODING_VALUE_BASE64)) {
-				in = new Base64InputStream(in, Base64.DEFAULT);
+			if(pDataEncoding != null) {
+				if(pDataEncoding.equals(TMXConstants.TAG_DATA_ATTRIBUTE_ENCODING_VALUE_BASE64)) {
+					in = new Base64InputStream(in, Base64.DEFAULT);
+				} else {
+					throw new IllegalArgumentException("Supplied encoding '" + pDataEncoding + "' is not supported yet.");
+				}
 			}
-			if(pDataCompression != null){
+
+			if(pDataCompression != null) {
 				if(pDataCompression.equals(TMXConstants.TAG_DATA_ATTRIBUTE_COMPRESSION_VALUE_GZIP)) {
 					in = new GZIPInputStream(in);
+				} else if(pDataCompression.equals(TMXConstants.TAG_DATA_ATTRIBUTE_COMPRESSION_VALUE_ZLIB)) {
+					in = new InflaterInputStream(in);
 				} else {
 					throw new IllegalArgumentException("Supplied compression '" + pDataCompression + "' is not supported yet.");
 				}
