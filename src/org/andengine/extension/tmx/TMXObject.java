@@ -29,7 +29,7 @@ public class TMXObject implements TMXConstants {
 	private final int mWidth;
 	private final int mHeight;
 	private final TMXProperties<TMXObjectProperty> mTMXObjectProperties = new TMXProperties<TMXObjectProperty>();
-	private final ArrayList<TMXPolygon> mTMXPolygons = new ArrayList<TMXPolygon>();
+	private TMXPolygon mTMXPolygon;
 
 	// ===========================================================
 	// Constructors
@@ -77,11 +77,15 @@ public class TMXObject implements TMXConstants {
 	}
 	
 	public void addTMXPolygon(final TMXPolygon pTMXPolygon) {
-		this.mTMXPolygons.add(pTMXPolygon);
+		this.mTMXPolygon = pTMXPolygon;
 	}
 
 	public TMXProperties<TMXObjectProperty> getTMXObjectProperties() {
 		return this.mTMXObjectProperties;
+	}
+	
+	public TMXPolygon getTMXPolygon() {
+		return this.mTMXPolygon;
 	}
 
 	// ===========================================================

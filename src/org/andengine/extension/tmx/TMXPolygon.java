@@ -32,7 +32,7 @@ public class TMXPolygon {
 	// Getter & Setter
 	// ===========================================================
 	
-	public ArrayList<TMXPolygonPoint> getPoints() {
+	public ArrayList<TMXPolygonPoint> getTMXPolygonPoints() {
 		return this.mPoints;
 	}
 
