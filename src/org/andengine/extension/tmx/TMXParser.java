@@ -61,6 +61,7 @@ public class TMXParser extends DefaultHandler implements TMXConstants {
 	private boolean mInData;
 	private boolean mInObjectGroup;
 	private boolean mInObject;
+	private boolean mInPolygon;
 
 	// ===========================================================
 	// Constructors
@@ -163,6 +164,15 @@ public class TMXParser extends DefaultHandler implements TMXConstants {
 			this.mInObject = true;
 			final ArrayList<TMXObjectGroup> tmxObjectGroups = this.mTMXTiledMap.getTMXObjectGroups();
 			tmxObjectGroups.get(tmxObjectGroups.size() - 1).addTMXObject(new TMXObject(pAttributes));
+		} else if(this.mInObject && pLocalName.equals(TMXConstants.TAG_POLYGON)) {
+			this.mInPolygon = true;
+			final ArrayList<TMXObjectGroup> tmxObjectGroups = this.mTMXTiledMap.getTMXObjectGroups();
+			final TMXObjectGroup lastTMXObjectGroup = tmxObjectGroups.get(tmxObjectGroups.size() - 1);
+			
+			final ArrayList<TMXObject> tmxObjects = lastTMXObjectGroup.getTMXObjects();
+			final TMXObject lastTMXObject = tmxObjects.get(tmxObjects.size() - 1);
+			
+			lastTMXObject.addTMXPolygon(new TMXPolygon(pAttributes));
 		} else {
 			throw new TMXParseException("Unexpected start tag: '" + pLocalName + "'.");
 		}
@@ -206,6 +216,8 @@ public class TMXParser extends DefaultHandler implements TMXConstants {
 			this.mInObjectGroup = false;
 		} else if(pLocalName.equals(TMXConstants.TAG_OBJECT)){
 			this.mInObject = false;
+		} else if(pLocalName.equals(TMXConstants.TAG_POLYGON)) {
+			this.mInPolygon = false;
 		} else {
 			throw new TMXParseException("Unexpected end tag: '" + pLocalName + "'.");
 		}

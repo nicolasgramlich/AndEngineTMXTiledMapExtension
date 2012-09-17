@@ -1,5 +1,7 @@
 package org.andengine.extension.tmx;
 
+import java.util.ArrayList;
+
 import org.andengine.extension.tmx.util.constants.TMXConstants;
 import org.andengine.util.SAXUtils;
 import org.xml.sax.Attributes;
@@ -27,6 +29,7 @@ public class TMXObject implements TMXConstants {
 	private final int mWidth;
 	private final int mHeight;
 	private final TMXProperties<TMXObjectProperty> mTMXObjectProperties = new TMXProperties<TMXObjectProperty>();
+	private final ArrayList<TMXPolygon> mTMXPolygons = new ArrayList<TMXPolygon>();
 
 	// ===========================================================
 	// Constructors
@@ -71,6 +74,10 @@ public class TMXObject implements TMXConstants {
 
 	public void addTMXObjectProperty(final TMXObjectProperty pTMXObjectProperty) {
 		this.mTMXObjectProperties.add(pTMXObjectProperty);
+	}
+	
+	public void addTMXPolygon(final TMXPolygon pTMXPolygon) {
+		this.mTMXPolygons.add(pTMXPolygon);
 	}
 
 	public TMXProperties<TMXObjectProperty> getTMXObjectProperties() {
