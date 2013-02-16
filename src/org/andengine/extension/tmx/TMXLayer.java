@@ -323,7 +323,7 @@ public class TMXLayer extends SpriteBatch implements TMXConstants {
 	}
 
 	private int getTileRowFromLocalY(final float pLocalY) {
-		return this.mTMXTiledMap.getTileRows() - this.getTileColumnFromLocalX(pLocalY) - 1;
+		return this.mTMXTiledMap.getTileRows() - (int)(pLocalY / this.mTMXTiledMap.getTileHeight()) - 1;
 	}
 
 	private int getTileColumnFromLocalX(final float pLocalX) {
