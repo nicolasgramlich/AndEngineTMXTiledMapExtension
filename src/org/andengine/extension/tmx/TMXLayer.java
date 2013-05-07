@@ -19,14 +19,14 @@ import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.SAXUtils;
 import org.andengine.util.StreamUtils;
 import org.andengine.util.adt.color.Color;
-import org.andengine.util.base64.Base64;
-import org.andengine.util.base64.Base64InputStream;
 import org.andengine.util.exception.AndEngineRuntimeException;
 import org.andengine.util.exception.MethodNotSupportedException;
 import org.andengine.util.math.MathUtils;
 import org.xml.sax.Attributes;
 
 import android.opengl.GLES20;
+import android.util.Base64;
+import android.util.Base64InputStream;
 
 /**
  * (c) 2010 Nicolas Gramlich
