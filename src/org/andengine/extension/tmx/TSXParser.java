@@ -45,6 +45,8 @@ public class TSXParser extends DefaultHandler implements TMXConstants {
 	private boolean mInProperties;
 	@SuppressWarnings("unused")
 	private boolean mInProperty;
+	@SuppressWarnings("unused")
+	private boolean mInPolygon;
 	private final int mFirstGlobalTileID;
 
 	// ===========================================================
