@@ -252,47 +252,49 @@ public class TMXLayer extends SpriteBatch implements TMXConstants {
 	}
 
 	private void addTileByGlobalTileID(final int pGlobalTileID, final ITMXTilePropertiesListener pTMXTilePropertyListener) {
-		final TMXTiledMap tmxTiledMap = this.mTMXTiledMap;
+		if (pGlobalTileID != 0) {
+		    final TMXTiledMap tmxTiledMap = this.mTMXTiledMap;
+		    final int tilesHorizontal = this.mTileColumns;
+		    final TMXTile[][] tmxTiles = this.mTMXTiles;
+		    final ITextureRegion tmxTileTextureRegion = tmxTiledMap
+		                .getTextureRegionFromGlobalTileID(pGlobalTileID);
 
-		final int tilesHorizontal = this.mTileColumns;
+		        if (mTexture == null) {
+		            mTexture = tmxTileTextureRegion.getTexture();
+		            super.initBlendFunction(mTexture);
+		        } else {
+		            if (mTexture != tmxTileTextureRegion.getTexture()) {
+		                throw new AndEngineRuntimeException(
+		                        "All TMXTiles in a TMXLayer need to be in the same TMXTileSet.");
+		            }
+		        }
+		        
+		        final int tileHeight = mTMXTiledMap.getTileHeight();
+		        final int tileWidth = mTMXTiledMap.getTileWidth();
+		        final int column = this.mTilesAdded % tilesHorizontal;
+		        final int row = this.mTilesAdded / tilesHorizontal;
+		        final TMXTile tmxTile = new TMXTile(pGlobalTileID, column, row,
+		                tileWidth, tileHeight, tmxTileTextureRegion);
+		        tmxTiles[row][column] = tmxTile;
 
-		final int column = this.mTilesAdded % tilesHorizontal;
-		final int row = this.mTilesAdded / tilesHorizontal;
+		        setIndex(getSpriteBatchIndex(column, row));
+		        this.drawWithoutChecks(tmxTileTextureRegion, tmxTile.getTileX(),
+		                tmxTile.getTileY(), tileWidth, tileHeight,
+		                Color.WHITE_ABGR_PACKED_FLOAT);
+		        submit(); 
+		        // TODO Doesn't need to be called here, but should rather
+		        // be called in a "init" step, when parsing the XML is
+		        // complete.
 
-		final TMXTile[][] tmxTiles = this.mTMXTiles;
-
-		final ITextureRegion tmxTileTextureRegion;
-		if(pGlobalTileID == 0) {
-			tmxTileTextureRegion = null;
-		} else {
-			tmxTileTextureRegion = tmxTiledMap.getTextureRegionFromGlobalTileID(pGlobalTileID);
-		}
-		final int tileHeight = this.mTMXTiledMap.getTileHeight();
-		final int tileWidth = this.mTMXTiledMap.getTileWidth();
-
-		if(this.mTexture == null) {
-			this.mTexture = tmxTileTextureRegion.getTexture();
-			super.initBlendFunction(this.mTexture);
-		} else {
-			if(this.mTexture != tmxTileTextureRegion.getTexture()) {
-				throw new AndEngineRuntimeException("All TMXTiles in a TMXLayer need to be in the same TMXTileSet.");
-			}
-		}
-		final TMXTile tmxTile = new TMXTile(pGlobalTileID, column, row, tileWidth, tileHeight, tmxTileTextureRegion);
-		tmxTiles[row][column] = tmxTile;
-
-		this.setIndex(this.getSpriteBatchIndex(column, row));
-		this.drawWithoutChecks(tmxTileTextureRegion, tmxTile.getTileX(), tmxTile.getTileY(), tileWidth, tileHeight, Color.WHITE_ABGR_PACKED_FLOAT);
-		this.submit(); // TODO Doesn't need to be called here, but should rather be called in a "init" step, when parsing the XML is complete.
-
-		if(pGlobalTileID != 0) {
-			/* Notify the ITMXTilePropertiesListener if it exists. */
-			if(pTMXTilePropertyListener != null) {
-				final TMXProperties<TMXTileProperty> tmxTileProperties = tmxTiledMap.getTMXTileProperties(pGlobalTileID);
-				if(tmxTileProperties != null) {
-					pTMXTilePropertyListener.onTMXTileWithPropertiesCreated(tmxTiledMap, this, tmxTile, tmxTileProperties);
-				}
-			}
+		        /* Notify the ITMXTilePropertiesListener if it exists. */
+		        if (pTMXTilePropertyListener != null) {
+		            final TMXProperties<TMXTileProperty> tmxTileProperties = tmxTiledMap
+		                    .getTMXTileProperties(pGlobalTileID);
+		            if (tmxTileProperties != null) {
+		                pTMXTilePropertyListener.onTMXTileWithPropertiesCreated(
+		                        tmxTiledMap, this, tmxTile, tmxTileProperties);
+		            }
+		        }
 		}
 
 		this.mTilesAdded++;
